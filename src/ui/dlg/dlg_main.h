@@ -128,6 +128,7 @@ public:
     BOOL IsVisible();
     void RefreshHistoryCounter();
     std::vector<HTREEITEM> hti;
+    MainDialog* parent;
   } treeview;
 
   // Edit control
@@ -162,9 +163,15 @@ public:
     std::map<int, std::wstring> text;
   } search_bar;
 
-private:
+protected:
   win::Rect rect_content_, rect_sidebar_;
   int anime_id_;
+
+  class ImageLabel : public win::Window {
+  public:
+    LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    MainDialog* parent;
+  } image_label_;
 };
 
 extern MainDialog DlgMain;
