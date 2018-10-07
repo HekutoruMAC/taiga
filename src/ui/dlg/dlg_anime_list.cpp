@@ -760,6 +760,10 @@ LRESULT AnimeListDialog::OnListNotify(LPARAM lParam) {
       if (selected_count > 0) {
         ui::ChangeStatusText(L"{} {} selected"_format(
             selected_count, selected_count == 1 ? L"item" : L"items"));
+        if (selected_count == 1) {
+          const int anime_id = listview.GetItemParam(lplv->iItem);
+	        DlgMain.SetCurrentAnimeId(anime_id);
+        }
       } else {
         ui::ClearStatusText();
       }
