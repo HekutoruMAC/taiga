@@ -1,0 +1,46 @@
+# Workflow Syntax Reference
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+name: Build
+
+on:
+  push
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_CONF: Release
+  BUILD_ARCH: x86
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build Dependencies
+        run: deps/build.bat
+
+      - name: Build Taiga
+        run: msbuild project/vs2022/Taiga.vcxproj -property:Configuration=${{ env.BUILD_CONF }} /property:Platform=${{ env.BUILD_ARCH }}
+
+      - name: Create Installer
+        run: makensis /DMACHINE=${{ env.BUILD_ARCH }} setup/Taiga.nsi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Taiga
+          path: |
+            bin/${{ env.BUILD_ARCH }}/TaigaSetup.exe
+            bin/${{ env.BUILD_ARCH }}/Release/Taiga.exe
